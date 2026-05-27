@@ -1,31 +1,26 @@
 {
-  "name": "zynor-backend",
-  "version": "1.0.0",
-  "description": "Secure backend server for Zynor membership platform with Stripe integration",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
-  },
-  "keywords": [
-    "zynor",
-    "membership",
-    "stripe",
-    "subscription"
-  ],
-  "author": "Zynor",
-  "license": "MIT",
-  "dependencies": {
-    "express": "^4.18.2",
-    "stripe": "^14.0.0",
-    "cors": "^2.8.5",
-    "body-parser": "^1.20.2",
-    "dotenv": "^16.3.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
-  },
-  "engines": {
-    "node": ">=16.0.0"
-  }
+    "name": "zynor-backend",
+    "version": "1.0.0",
+    "description": "Secure backend server for Zynor membership platform with Stripe integration",
+    "main": "server.js",
+    "scripts": {
+          "start": "node server.js",
+          "dev": "nodemon server.js"
+    },
+    "keywords": [
+          "zynor",
+          "membership",
+          "stripe",
+          "subscription"
+    ],
+    "author": "Zynor",
+    "license": "ISC",
+    "dependencies": {
+          "axios": "^1.6.2",
+          "body-parser": "^1.20.2",
+          "cors": "^2.8.5",
+          "dotenv": "^16.3.1",
+          "express": "^4.18.2",
+          "stripe": "^14.10.0"
+    }
 }
