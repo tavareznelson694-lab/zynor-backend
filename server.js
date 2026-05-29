@@ -5,6 +5,45 @@ const axios = require('axios');
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 
+// ============================================
+// MAILERLITE HELPER - Add subscriber to group
+// ============================================
+
+async function addToMailerLite(email, name, tier) {
+      const apiKey = process.env.MAILERLITE_API_KEY;
+      const groupId = process.env.MAILERLITE_GROUP_ID;
+
+      if (!apiKey || !groupId) {
+              console.log('[MailerLite] Missing MAILERLITE_API_KEY or MAILERLITE_GROUP_ID env vars');
+              return false;
+      }
+
+      try {
+              // Upsert subscriber
+              const subRes = await axios.post(
+                        'https://connect.mailerlite.com/api/subscribers',
+                  {
+                              email: email,
+                              fields: { name: name || '', tier: tier || '' },
+                              groups: [groupId]
+                  },
+                  {
+                              headers: {
+                                            Authorization: `Bearer ${apiKey}`,
+                                            'Content-Type': 'application/json',
+                                            Accept: 'application/json'
+                              }
+                  }
+                      );
+              console.log(`[MailerLite] Subscriber ${email} added to group, status: ${subRes.status}`);
+              return true;
+      } catch (err) {
+              const errData = err.response ? JSON.stringify(err.response.data) : err.message;
+              console.error(`[MailerLite] Failed to add subscriber: ${errData}`);
+              return false;
+      }
+}
+
 dotenv.config();
 
 const app = express();
@@ -138,6 +177,12 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
               const discordOk = await addDiscordMemberRole(discordUserId);
               console.log(`[Discord] Role assignment result: ${discordOk ? 'SUCCESS' : 'FAILED'}`);
       }
+
+                       // Add to MailerLite (triggers Zynor Member Onboarding automation)
+                       const memberName = session.metadata?.memberName || session.customer_details?.name || '';
+                       const mailerLiteOk = await addToMailerLite(email, memberName, tier);
+                       console.log(`[MailerLite] Add subscriber result: ${mailerLiteOk ? 'SUCCESS' : 'FAILED'}`);
+               
 
       // Add to Mailchimp
       try {
