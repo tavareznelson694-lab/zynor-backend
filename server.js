@@ -272,6 +272,32 @@ app.get('/', (req, res) => {
     res.json({ message: 'Zynor Backend API', version: '2.1', status: 'running' });
 });
 
+// ==========================================
+// VERIFY MEMBER ENDPOINT
+// ==========================================
+app.get('/verify-member', async (req, res) => {
+        res.header('Access-Control-Allow-Origin', '*');
+        const email = req.query.email;
+        if (!email) return res.json({ member: false, reason: 'no_email' });
+        const apiKey = process.env.MAILERLITE_API_KEY;
+        const groupId = process.env.MAILERLITE_GROUP_ID;
+        try {
+                  const response = await axios.get(
+                              `https://connect.mailerlite.com/api/subscribers/${encodeURIComponent(email)}`,
+                        { headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json', Accept: 'application/json' } }
+                            );
+                  const subscriber = response.data.data;
+                  const inGroup = subscriber && subscriber.groups && subscriber.groups.some(g => g.id === groupId);
+                  res.json({ member: !!inGroup, email: email, status: subscriber ? subscriber.status : 'not_found' });
+        } catch (err) {
+                  if (err.response && err.response.status === 404) {
+                              res.json({ member: false, reason: 'not_subscribed' });
+                  } else {
+                              res.json({ member: false, reason: 'error' });
+                  }
+        }
+});
+
 // ============================================
 // START SERVER
 // ============================================
